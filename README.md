@@ -12,6 +12,7 @@ This project contains everything a game needs:
 | `example/` | **Arena**, a complete runnable TypeScript sample (Vite + canvas). |
 | `docs/PATTERNS.md` | How to structure a game on GameHub: state, deltas, inputs, host migration. |
 | `docs/PROTOCOL.md` | The wire protocol, for non-TypeScript clients or debugging. |
+| `lobby/` + `docs/LOBBY.md` | The lobby page at `apps.futuremagic.de/lobby/`, and how a game joins it through `apps.json`. |
 | `tests/arena.e2e.ts` | Headless test that plays Arena with two clients against the live server. |
 
 Server source and operations live in `~/projects/GameHub`.

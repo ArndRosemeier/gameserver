@@ -21,6 +21,7 @@
   "include": [
     "client",
     "example/src",
+    "lobby/src",
     "tests"
   ]
 }
