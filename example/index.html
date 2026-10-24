@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Arena - GameHub sample</title>
+  <link rel="stylesheet" href="./src/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Arena</h1>
+    <p>GameHub sample: move with WASD / arrows, collect the coin. Open in two tabs to play with yourself.</p>
+  </header>
+  <section id="lobby">
+    <label>Your name <input id="name" maxlength="24" /></label>
+    <div class="row"><button id="create">Create room</button></div>
+    <div class="row"><input id="code" placeholder="room code" maxlength="6" /><button id="join">Join by code</button></div>
+    <h2>Open rooms</h2>
+    <ul id="rooms"><li class="empty">Connecting...</li></ul>
+  </section>
+  <div id="status"></div>
+  <canvas id="arena"></canvas>
+  <script type="module" src="./src/main.ts"></script>
+</body>
+</html>
