@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Futuremagic lobby: multiplayer games running right now." />
+    <title>Futuremagic Lobby</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="backdrop" aria-hidden="true"></div>
+    <main class="page">
+      <header class="masthead">
+        <a class="home" href="/">Futuremagic</a>
+        <h1>The Lobby</h1>
+        <p class="lead">Games running right now, and the rooms you can join.</p>
+        <p class="status" id="status" aria-live="polite">Looking for open tables…</p>
+      </header>
+      <section class="games" id="games"></section>
+    </main>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
