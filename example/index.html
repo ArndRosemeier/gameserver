@@ -3,13 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b1020" />
   <title>Arena - GameHub sample</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="./src/style.css" />
 </head>
 <body>
   <header>
     <h1>Arena</h1>
-    <p>GameHub sample: move with WASD / arrows, collect the coin. Open in two tabs to play with yourself.</p>
+    <p>GameHub sample: move with WASD / arrows (or touch and hold), collect the coin. Open in two tabs to play with yourself.</p>
   </header>
   <section id="lobby">
     <label>Your name <input id="name" maxlength="24" /></label>
@@ -17,8 +20,23 @@
     <div class="row"><input id="code" placeholder="room code" maxlength="6" /><button id="join">Join by code</button></div>
     <h2>Open rooms</h2>
     <ul id="rooms"><li class="empty">Connecting...</li></ul>
+    <h2>Play nearby, no server</h2>
+    <p class="hint">Phones on the same WLAN (or one phone's hotspot) connect directly. Works offline once the game has been opened.</p>
+    <div class="row"><button id="near-host">Host nearby game</button><button id="near-join">Join nearby game</button></div>
+  </section>
+  <section id="nearby" hidden>
+    <p id="near-step"></p>
+    <div id="near-qr"></div>
+    <div class="row" id="near-code-row"><input id="near-code" readonly /><button id="near-copy">Copy</button></div>
+    <video id="near-video" hidden></video>
+    <div class="row" id="near-input-row">
+      <button id="near-scan">Scan with camera</button>
+      <input id="near-paste" placeholder="or paste a code" /><button id="near-use">Use</button>
+    </div>
+    <div class="row"><button id="near-done" class="quiet">Hide</button></div>
   </section>
   <div id="status"></div>
+  <div class="row"><button id="near-invite" class="quiet" hidden>Invite another player</button></div>
   <canvas id="arena"></canvas>
   <script type="module" src="./src/main.ts"></script>
 </body>

@@ -8,3 +8,16 @@ button { cursor: pointer; background: #2563eb; border-color: #2563eb; } button:d
 #status { min-height: 1.4em; margin: 8px 0; color: #93c5fd; }
 canvas { display: none; max-width: 100%; border-radius: 8px; border: 1px solid #1f2937; }
 body.playing canvas { display: block; } body.playing #lobby { display: none; }
+.hint { margin: 0; color: #9ca3af; font-size: .9em; }
+#nearby { display: grid; gap: 8px; max-width: 420px; margin-bottom: 12px; padding: 12px; border: 1px solid #1f2937; border-radius: 8px; }
+#nearby[hidden], #nearby [hidden] { display: none; }
+#near-step { margin: 0; }
+#near-qr svg { width: min(100%, 320px); height: auto; background: #fff; border-radius: 6px; display: block; }
+#near-code { flex: 1; min-width: 0; font-family: ui-monospace, monospace; font-size: .8em; }
+#near-paste { flex: 1; min-width: 0; }
+#near-video { width: 100%; max-width: 320px; border-radius: 6px; }
+button.quiet { background: transparent; }
+canvas { touch-action: none; }
+*, *::before, *::after { box-sizing: border-box; }
+#nearby .row { flex-wrap: wrap; }
+body.nearby #lobby { display: none; }
