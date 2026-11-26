@@ -97,7 +97,46 @@ export function connect<S = unknown, D = unknown, M = unknown>(options: ConnectO
   const wsBase = base.replace(/^http/, "ws");
   const appPath = "/v1/apps/" + encodeURIComponent(app);
   const query = appKey ? "?key=" + encodeURIComponent(appKey) : "";
+  const ws = new WebSocket(wsBase + appPath + "/ws" + query);
+  ws.binaryType = "arraybuffer";
+  return connectSocket<S, D, M>(ws as unknown as SocketLike, {
+    name,
+    async listRooms() {
+      const headers: Record<string, string> = {};
+      if (appKey) headers["x-app-key"] = appKey;
+      const r = await fetch(httpBase + appPath + "/rooms", { headers, credentials: access ? "include" : "omit" });
+      if (!r.ok) throw new Error("gamehub: rooms HTTP " + r.status);
+      return ((await r.json()) as { rooms: RoomSummary[] }).rooms;
+    },
+  });
+}
 
+/**
+ * The part of a WebSocket the client needs. GameHub's protocol runs over anything shaped like this:
+ * the server's WebSocket, or (see local.ts) a WebRTC data channel or an in-page loopback.
+ */
+export interface SocketLike {
+  /** 0 connecting, 1 open, 2 closing, 3 closed - same values as WebSocket. */
+  readonly readyState: number;
+  send(data: string | ArrayBuffer | ArrayBufferView): void;
+  close(code?: number): void;
+  onopen: ((ev: unknown) => void) | null;
+  onmessage: ((ev: { data: string | ArrayBuffer }) => void) | null;
+  onclose: ((ev: { code: number; reason?: string }) => void) | null;
+  onerror: ((ev: unknown) => void) | null;
+}
+
+export type SocketOptions = {
+  name?: string;
+  /** Public room list over HTTP; transports without one return []. */
+  listRooms?: () => Promise<RoomSummary[]>;
+  /** Room that join() always enters, whatever code it is given (local guests). */
+  fixedRoom?: string;
+};
+
+/** Speak the GameHub protocol over an already-created socket. connect() is this plus a WebSocket. */
+export function connectSocket<S = unknown, D = unknown, M = unknown>(ws: SocketLike, options: SocketOptions = {}): GameHub<S, D, M> {
+  const { name, listRooms = async () => [], fixedRoom } = options;
   const handlers = new Map<string, Set<AnyFn>>();
   const pending = new Map<number, Pending>();
   const lobbyRooms = new Map<string, RoomSummary>();
@@ -117,8 +156,6 @@ export function connect<S = unknown, D = unknown, M = unknown>(options: ConnectO
       try { fn(...args); } catch (e) { console.error("gamehub handler error:", e); }
     }
   };
-  const ws = new WebSocket(wsBase + appPath + "/ws" + query);
-  ws.binaryType = "arraybuffer";
   const raw = (msg: object) => { if (ws.readyState === 1) ws.send(JSON.stringify(msg)); };
   const request = (msg: object) => new Promise<any>((resolve, reject) => {
     const req = ++reqSeq;
@@ -132,9 +169,9 @@ export function connect<S = unknown, D = unknown, M = unknown>(options: ConnectO
     if (!readyDone) { readyDone = true; rejectReady(new Error("gamehub: could not connect (" + e.code + ")")); }
     for (const p of pending.values()) p.reject(new Error("gamehub: connection closed"));
     pending.clear();
-    emit("close", e);
+    emit("close", e as CloseEvent);
   };
-  ws.onmessage = (ev: MessageEvent) => {
+  ws.onmessage = (ev) => {
     if (typeof ev.data !== "string") {
       const buf = new Uint8Array(ev.data as ArrayBuffer);
       const from = new DataView(buf.buffer, buf.byteOffset, buf.byteLength).getUint32(0);
@@ -194,25 +231,19 @@ export function connect<S = unknown, D = unknown, M = unknown>(options: ConnectO
       handlers.get(event)!.add(fn as AnyFn);
       return () => { handlers.get(event)?.delete(fn as AnyFn); };
     },
-    async listRooms() {
-      const headers: Record<string, string> = {};
-      if (appKey) headers["x-app-key"] = appKey;
-      const r = await fetch(httpBase + appPath + "/rooms", { headers, credentials: access ? "include" : "omit" });
-      if (!r.ok) throw new Error("gamehub: rooms HTTP " + r.status);
-      return ((await r.json()) as { rooms: RoomSummary[] }).rooms;
-    },
+    listRooms,
     watchLobby(onRooms) {
       const off = this.on("lobby", onRooms);
       raw({ t: "lobby", on: true });
       return () => { off(); raw({ t: "lobby", on: false }); };
     },
     create(opts = {}) { return request({ t: "create", room: opts }).then((m) => m.room as RoomSummary); },
-    join(roomId) { return request({ t: "join", id: roomId }).then((m) => m.room as RoomSummary); },
+    join(roomId) { return request({ t: "join", id: fixedRoom ?? roomId }).then((m) => m.room as RoomSummary); },
     leave() { return request({ t: "leave" }); },
     setState(data) { raw({ t: "state", data }); },
     sendDelta(data) { raw({ t: "delta", data }); },
     send(data, to) { raw(to === undefined ? { t: "msg", data } : { t: "msg", data, to }); },
-    sendBinary(bytes) { if (ws.readyState === 1) ws.send(bytes); },
+    sendBinary(bytes) { if (ws.readyState === 1) ws.send(bytes as ArrayBuffer | ArrayBufferView); },
     setRoom(changes) {
       const m: Record<string, unknown> = { t: "meta" };
       if (changes.name !== undefined) m.name = changes.name;

@@ -13,8 +13,10 @@ This project contains everything a game needs:
 | `docs/PATTERNS.md` | How to structure a game on GameHub: state, deltas, inputs, host migration. |
 | `docs/PROTOCOL.md` | The wire protocol, for non-TypeScript clients or debugging. |
 | `lobby/` + `docs/LOBBY.md` | The lobby page at `apps.futuremagic.de/lobby/`, and how a game joins it through `apps.json`. |
+| `client/local.ts` + `docs/LOCAL.md` | **Nearby play with no server**: phones on one WLAN connect directly (WebRTC + QR codes). |
 | `docs/CUED.md` + `client/cued.ts` | How to list a game on cued.de (Frank's friends' portal) and read who is playing. |
 | `tests/arena.e2e.ts` | Headless test that plays Arena with two clients against the live server. |
+| `tests/local.test.ts`, `tests/nearby.browser.ts` | Nearby mode: room server rules in Node, and two real browsers over WebRTC. |
 
 Server source and operations live in `~/projects/GameHub`.
 
@@ -30,7 +32,7 @@ npm run dev                                  # http://localhost:5174 — open it
 ```
 Create a room in one tab, join it from the other (lobby or room code), move with WASD/arrows.
 
-Other scripts: `npm run build` (→ `dist/`), `npm run typecheck`,
+Other scripts: `npm run build` (→ `dist/`), `npm run typecheck`, `npm run test:local`, `npm run test:nearby`,
 `GAMEHUB_KEY_FILE=~/gamehub-config/arena.key npm run test:e2e`.
 
 ---

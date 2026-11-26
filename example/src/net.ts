@@ -13,7 +13,10 @@ import type { Input, Intent, Player, World, WorldDelta } from "./game.ts";
 export const TICK_MS = 50;          // 20 Hz simulation and network rate
 export const SNAPSHOT_EVERY = 40;   // full state every 40 ticks (2 s) keeps the server's late-joiner history short
 
-export type SessionOptions = { url?: string; app: string; appKey?: string; access?: boolean; name: string };
+export type SessionOptions =
+  | { url?: string; app: string; appKey?: string; access?: boolean; name: string }
+  /** An already-connected hub, e.g. from hostLocal()/joinLocal() for play without a server. */
+  | { hub: GameHub<World, WorldDelta, Intent> };
 
 export class ArenaSession {
   readonly hub: GameHub<World, WorldDelta, Intent>;
@@ -29,7 +32,7 @@ export class ArenaSession {
   private sinceSnapshot = 0;
 
   constructor(options: SessionOptions) {
-    this.hub = connect<World, WorldDelta, Intent>(options);
+    this.hub = "hub" in options ? options.hub : connect<World, WorldDelta, Intent>(options);
     const hub = this.hub;
 
     hub.on("joined", () => {

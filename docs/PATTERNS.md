@@ -28,6 +28,8 @@ the new board with `setState` (boards are small — skip deltas entirely).
 When the host leaves, GameHub promotes the next player. Because every client mirrors the full world,
 the new host just continues: reconcile players (`hub.players`), start the tick loop, `setState`.
 `example/src/net.ts` → `takeOverAsHost()` is the reference implementation.
+In nearby mode (`docs/LOCAL.md`) the host's page *is* the server, so there is no migration: when the
+host leaves, everyone gets `close`.
 
 ## 6. Smoothness
 Render at display rate, simulate at network rate: interpolate between the last two received positions
